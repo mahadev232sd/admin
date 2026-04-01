@@ -17,6 +17,7 @@ function resolveUploadUrl(path) {
 export default function Transactions() {
   const [list, setList] = useState([]);
   const [filter, setFilter] = useState({ status: 'pending' });
+  const [payoutFiles, setPayoutFiles] = useState({});
 
   const load = () => {
     const params = { status: filter.status };
@@ -33,8 +34,21 @@ export default function Transactions() {
 
   const approve = async (id) => {
     try {
-      await api.post(`/admin/transactions/${id}/approve`);
+      const tx = list.find((t) => t._id === id);
+      const f = payoutFiles[id];
+      if (tx?.type === 'withdraw' && f) {
+        const fd = new FormData();
+        fd.append('proof', f);
+        await api.post(`/admin/transactions/${id}/approve`, fd);
+      } else {
+        await api.post(`/admin/transactions/${id}/approve`);
+      }
       toast.success('Approved');
+      setPayoutFiles((m) => {
+        const next = { ...m };
+        delete next[id];
+        return next;
+      });
       load();
     } catch (e) {
       toast.error(e.response?.data?.message || 'Failed');
@@ -119,12 +133,37 @@ export default function Transactions() {
                   View payment proof
                 </a>
               )}
+              {tx.payoutProofImage && (
+                <a
+                  href={resolveUploadUrl(tx.payoutProofImage)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 block text-xs text-emerald-400 hover:underline"
+                >
+                  View payout proof
+                </a>
+              )}
               <p className="text-xs text-zinc-600">
                 {new Date(tx.createdAt).toLocaleString()} · {tx.status}
               </p>
             </div>
             {tx.status === 'pending' && (
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 md:items-end">
+                {tx.type === 'withdraw' && (
+                  <div className="w-full md:w-[240px]">
+                    <label className="mb-1 block text-xs text-zinc-500">Upload payout screenshot (optional)</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setPayoutFiles((m) => ({ ...m, [tx._id]: file || undefined }));
+                      }}
+                      className="w-full rounded-lg border border-zinc-700 bg-black/40 px-3 py-2 text-xs text-zinc-200"
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => approve(tx._id)}
@@ -139,6 +178,7 @@ export default function Transactions() {
                 >
                   Reject
                 </button>
+                </div>
               </div>
             )}
           </div>

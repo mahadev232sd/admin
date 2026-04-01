@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Gamepad2, ArrowLeftRight, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Gamepad2, ArrowLeftRight, QrCode, LogOut, Menu, X } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 
 const nav = [
@@ -8,6 +8,7 @@ const nav = [
   { to: '/users', label: 'Users', icon: Users },
   { to: '/game-ids', label: 'Game IDs', icon: Gamepad2 },
   { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { to: '/deposit-settings', label: 'Deposit Settings', icon: QrCode },
 ];
 
 function NavLinks({ onNavigate }) {

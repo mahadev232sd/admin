@@ -9,6 +9,7 @@ import Users from './pages/Users';
 import UserDetail from './pages/UserDetail';
 import GameIds from './pages/GameIds';
 import Transactions from './pages/Transactions';
+import DepositSettings from './pages/DepositSettings';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="users/:id" element={<UserDetail />} />
             <Route path="game-ids" element={<GameIds />} />
             <Route path="transactions" element={<Transactions />} />
+            <Route path="deposit-settings" element={<DepositSettings />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
